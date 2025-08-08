@@ -3,29 +3,33 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsClient;
+use App\Http\Middleware\IsProfessional;
 use App\Http\Middleware\IsUserAuth;
 use Illuminate\Support\Facades\Route;
 
-//PUBLIC ROUTES
+// Rutas públicas
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
-//PRIVATE ROUTES
+// Rutas privadas
 Route::middleware([IsUserAuth::class])->group(function () {
-    Route::controller(AuthController::class)->group(function () {
-        Route::post('logout', 'logout');
-        Route::get('me', 'getUser');
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('me', [AuthController::class, 'getUser']);
+
+    // Solo ADMIN
+    Route::middleware([IsAdmin::class])->group(function () {
+        // Rutas exclusivas para admin
     });
 
-    Route::get('servicios', [ServicioController::class, 'getServices']);
+    // Solo PROFESSIONAL
+    Route::middleware([IsProfessional::class])->group(function () {
+        // Rutas exclusivas para profesionales
+    });
 
-    Route::middleware([IsAdmin::class])->group(function () {
-        Route::controller(ServicioController::class)->group(function () {
-            Route::post('servicios', 'addService');
-            Route::get('/servicios/{id}', 'getServiceById');
-            Route::patch('/servicios/{id}', 'updateServiceById');
-            Route::delete('/servicios/{id}', 'deleteServiceById');
-        });
+    // Solo CLIENT
+    Route::middleware([IsClient::class])->group(function () {
+        // Rutas exclusivas para clientes
     });
 });
 
