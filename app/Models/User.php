@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -25,6 +26,20 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string)Str::uuid();
+            }
+        });
+    }
 
     protected function casts(): array
     {
@@ -49,7 +64,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Professional::class, 'user_id');
     }
 
-    public function cliente()
+    public function client()
     {
         return $this->hasOne(Client::class, 'user_id');
     }
